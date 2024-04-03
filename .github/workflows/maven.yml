@@ -27,6 +27,9 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+    - name: Fetching All
+      run: |
+        git fetch --prune --unshallow
         # Install Git Version
     - name: Installing GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.5
