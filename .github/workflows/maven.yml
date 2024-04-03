@@ -27,8 +27,13 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+    - name: Extract Maven project version
+      run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+      id: project
+    - name: Show extracted Maven project version
+      run: echo ${{ steps.project.outputs.version }}
     - name: Update version in pom.xml (Release only)
-      run: mvn -B versions:set -DnewVersion=${{ github.event.release.tag_name }} -DgenerateBackupPoms=false
+      run: mvn -B versions:set -DnewVersion=${{ steps.project.outputs.version }} -DgenerateBackupPoms=false
     - name: Build with Maven
       run: mvn clean install
     - name: Build and push Docker image
