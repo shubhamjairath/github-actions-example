@@ -39,21 +39,25 @@ jobs:
 #    - name: Use GitVersion
 #      id: gitversion
 #      uses: gittools/actions/gitversion/execute@v0.9.5
+#    - name: Bump Version
+#      uses: 'mickem/gh-action-bump-maven-version'
+#      with:
+#        bump-command: mvn org.codehaus.mojo:versions-maven-plugin:2.7:set-property -Dproperty=revision -DnewVersion=$NEW_VERSION
 
         # For a maven artifact, set version to what was computed by GitVersion in earlier step
-    - name: Evaluate New Artifact Version
-      run: |
-        NEW_VERSION=${{ steps.gitversion.outputs.semVer }}
-        echo "Artifact Semantic Version: $NEW_VERSION"
-        mvn versions:set -DnewVersion=${NEW_VERSION}-SNAPSHOT -s pom.xml
+#    - name: Evaluate New Artifact Version
+#      run: |
+#        NEW_VERSION=${{ steps.gitversion.outputs.semVer }}
+#        echo "Artifact Semantic Version: $NEW_VERSION"
+#        mvn versions:set -DnewVersion=${NEW_VERSION}-SNAPSHOT -s pom.xml
 
     - name: Build with Maven
-      run: mvn clean install
+      run: mvn -B versions:set -DnewVersion=${{ github.event.release.tag_name }} -DgenerateBackupPoms=false
     - name: Build and push Docker image
       uses: mr-smithers-excellent/docker-build-push@v5
       with:
         image: shubham710/springboot-image-new
-        #tags: ${{ steps.project.outputs.version }}
+        tags: ${{ github.event.release.tag_name }}
         registry: docker.io
         dockerfile: Dockerfile
         username: ${{ secrets.DOCKER_USERNAME }}
